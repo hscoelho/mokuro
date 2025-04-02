@@ -5,28 +5,46 @@ from tqdm import tqdm
 
 from mokuro import __version__
 from mokuro.manga_page_ocr import MangaPageOcr
+from mokuro.rapid_page_ocr import RapidPageOcr
 from mokuro.utils import dump_json, load_json
 from mokuro.volume import Volume
 
 
 class MokuroGenerator:
     def __init__(
-        self, pretrained_model_name_or_path="kha-white/manga-ocr-base", force_cpu=False, disable_ocr=False, **kwargs
+        self,
+        pretrained_model_name_or_path="kha-white/manga-ocr-base",
+        force_cpu=False,
+        disable_ocr=False,
+        language="jp",
+        **kwargs,
     ):
         self.pretrained_model_name_or_path = pretrained_model_name_or_path
         self.force_cpu = force_cpu
         self.disable_ocr = disable_ocr
         self.kwargs = kwargs
         self.mpocr = None
+        self.language = language
 
     def init_models(self):
         if self.mpocr is None:
-            self.mpocr = MangaPageOcr(
-                self.pretrained_model_name_or_path,
-                force_cpu=self.force_cpu,
-                disable_ocr=self.disable_ocr,
-                **self.kwargs,
-            )
+            if self.language == "jp":
+                self.mpocr = MangaPageOcr(
+                    self.pretrained_model_name_or_path,
+                    force_cpu=self.force_cpu,
+                    disable_ocr=self.disable_ocr,
+                    **self.kwargs,
+                )
+            elif self.language == "ch":
+                self.mpocr = RapidPageOcr()
+            else:
+                logger.info("Unknown language. Defaulting to MangaOcr model")
+                self.mpocr = MangaPageOcr(
+                    self.pretrained_model_name_or_path,
+                    force_cpu=self.force_cpu,
+                    disable_ocr=self.disable_ocr,
+                    **self.kwargs,
+                )
 
     def process_volume(self, volume: Volume, ignore_errors=False, no_cache=False):
         volume.path_ocr_cache.mkdir(parents=True, exist_ok=True)

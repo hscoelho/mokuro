@@ -15,6 +15,7 @@ from mokuro.volume import VolumeCollection
 def run(
     *paths: Optional[Sequence[Union[str, Path]]],
     parent_dir: Optional[Union[str, Path]] = None,
+    language: str = "jp",
     pretrained_model_name_or_path: str = "kha-white/manga-ocr-base",
     force_cpu: bool = False,
     disable_confirmation: bool = False,
@@ -32,6 +33,7 @@ def run(
     Args:
         paths: Paths to manga volumes. Volume can be a directory, a zip file or a cbz file.
         parent_dir: Parent directory to scan for volumes. If provided, all volumes inside this directory will be processed.
+        language: Language of the manga volumes. Supported options: "jp" (japanese using MangaOCR) or "ch" (simplified chinese using RapidOCR)
         pretrained_model_name_or_path: Name or path of the manga-ocr model.
         force_cpu: Force the use of CPU even if CUDA is available.
         disable_confirmation: Disable confirmation prompt. If False, the user will be prompted to confirm the list of volumes to be processed.
@@ -117,7 +119,10 @@ def run(
             return
 
     mg = MokuroGenerator(
-        pretrained_model_name_or_path=pretrained_model_name_or_path, force_cpu=force_cpu, disable_ocr=disable_ocr
+        pretrained_model_name_or_path=pretrained_model_name_or_path,
+        force_cpu=force_cpu,
+        disable_ocr=disable_ocr,
+        language=language,
     )
 
     with TemporaryDirectory() as tmp_dir:
