@@ -7,6 +7,7 @@ from mokuro import __version__
 from mokuro.manga_page_ocr import MangaPageOcr
 from mokuro.utils import dump_json, load_json
 from mokuro.volume import Volume
+from mokuro.google_vision_ocr import GooglePageVision
 
 
 class MokuroGenerator:
@@ -20,13 +21,18 @@ class MokuroGenerator:
         self.mpocr = None
 
     def init_models(self):
+        model = "google_vision"
+        # model = "manga_page_ocr"
         if self.mpocr is None:
-            self.mpocr = MangaPageOcr(
-                self.pretrained_model_name_or_path,
-                force_cpu=self.force_cpu,
-                disable_ocr=self.disable_ocr,
-                **self.kwargs,
-            )
+            if model == "google_vision":
+                self.mpocr = GooglePageVision()
+            else:
+                self.mpocr = MangaPageOcr(
+                    self.pretrained_model_name_or_path,
+                    force_cpu=self.force_cpu,
+                    disable_ocr=self.disable_ocr,
+                    **self.kwargs,
+                )
 
     def process_volume(self, volume: Volume, ignore_errors=False, no_cache=False):
         volume.path_ocr_cache.mkdir(parents=True, exist_ok=True)

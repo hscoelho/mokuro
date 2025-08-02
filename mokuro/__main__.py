@@ -4,6 +4,7 @@ from mokuro.run import run
 
 
 def main():
+    print("DEVEL")
     fire.Fire(run)
 
 
